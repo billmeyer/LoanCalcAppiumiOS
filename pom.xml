@@ -3,10 +3,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.billmeyer</groupId>
-    <artifactId>LoanCalcAppiumTest</artifactId>
+    <artifactId>LoanCalcAppiumiOS</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>LoanCalcAppiumTest</name>
+    <name>LoanCalcAppiumiOS</name>
     <description>A sample Maven project that demonstrates how to integrate Sauce OnDemand with WebDriver tests
         that run using TestNG
     </description>

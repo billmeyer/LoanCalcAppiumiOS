@@ -3,6 +3,7 @@ package io.billmeyer.saucelabs.parallel;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.ios.IOSDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.InvalidElementStateException;
 import org.openqa.selenium.OutputType;
@@ -29,33 +30,55 @@ public class CarLoanTest extends TestBase
 
 //        pushToSauceStorage("", "");
 
-        AndroidDriver driver = createDriver(platformName, platformVersion, deviceName, method.getName());
+        IOSDriver driver = createDriver(platformName, platformVersion, deviceName, method.getName());
 
-        WebElement etLoanAmount = driver.findElement(By.id("io.billmeyer.loancalc:id/etLoanAmount"));
-        WebElement etEditInterest = driver.findElement(By.id("io.billmeyer.loancalc:id/etEditInterest"));
-        WebElement etSalesTax = driver.findElement(By.id("io.billmeyer.loancalc:id/etSalesTax"));
-        WebElement etTerm = driver.findElement(By.id("io.billmeyer.loancalc:id/etTerm"));
-        WebElement etDownPayment = driver.findElement(By.id("io.billmeyer.loancalc:id/etDownPayment"));
-        WebElement etTradeIn = driver.findElement(By.id("io.billmeyer.loancalc:id/etTradeIn"));
-        WebElement etFees = driver.findElement(By.id("io.billmeyer.loancalc:id/etFees"));
-        WebElement btnCalculate = driver.findElement(By.id("io.billmeyer.loancalc:id/btnCalculate"));
-        WebElement tvLoanTotal = driver.findElement(By.id("io.billmeyer.loancalc:id/tvLoanTotal"));
+        long time1, time2, time3, time4;
+
+        time1 = System.currentTimeMillis();
+
+        WebElement tfLoanAmount = driver.findElementByAccessibilityId("tfLoanAmount");
+        WebElement tfInterest = driver.findElementByAccessibilityId("tfInterest");
+        WebElement tfSalesTax = driver.findElementByAccessibilityId("tfSalesTax");
+        WebElement tfTerm = driver.findElementByAccessibilityId("tfTerm");
+        WebElement tfDownPayment = driver.findElementByAccessibilityId("tfDownPayment");
+        WebElement tfTradeIn = driver.findElementByAccessibilityId("tfTradeIn");
+        WebElement tfFees = driver.findElementByAccessibilityId("tfFees");
+        WebElement lblMonthlyPayment = driver.findElementByAccessibilityId("lblMonthlyPayment");
+        WebElement lblTotalPayments = driver.findElementByAccessibilityId("lblTotalPayments");
+        WebElement lblTotalInterest = driver.findElementByAccessibilityId("lblTotalInterest");
+        WebElement lblTotalCost = driver.findElementByAccessibilityId("lblTotalCost");
+
+        time2 = System.currentTimeMillis();
 
         // Set the input values for our loan calculation...
-        etLoanAmount.sendKeys("25000");
-        etEditInterest.sendKeys("3.42");
-        etSalesTax.sendKeys("8");
-        etTerm.sendKeys("60");
-        etDownPayment.sendKeys("500");
-        etTradeIn.sendKeys("7500");
-        etFees.sendKeys("300");
-        driver.getScreenshotAs(OutputType.FILE);
+        tfLoanAmount.sendKeys("25000");
+        tfInterest.sendKeys("3.42");
+        tfSalesTax.sendKeys("8");
+        tfTerm.sendKeys("60");
+        tfDownPayment.sendKeys("500");
+        tfTradeIn.sendKeys("7500");
+        tfFees.sendKeys("300");
 
-        btnCalculate.click();
-        driver.getScreenshotAs(OutputType.FILE);
+        if (unifiedPlatformTesting == false)
+        {
+            driver.getScreenshotAs(OutputType.FILE);
+        }
+
+        time3 = System.currentTimeMillis();
 
         // Check if within given time the correct result appears in the designated field.
-        ExpectedCondition<Boolean> expected = ExpectedConditions.textToBePresentInElement(tvLoanTotal, "20,370.97");
+        ExpectedCondition<Boolean> expected;
+        expected = ExpectedConditions.textToBePresentInElement(lblMonthlyPayment, "$339.52");
+        expected = ExpectedConditions.textToBePresentInElement(lblTotalPayments, "$20,370.97");
+        expected = ExpectedConditions.textToBePresentInElement(lblTotalInterest, "$1,670.97");
+        expected = ExpectedConditions.textToBePresentInElement(lblTotalCost, "$28,370.97");
+
+        time4 = System.currentTimeMillis();
+
+        System.out.printf("Locating elements took %.2f secs\n", (time2-time1)/1000f);
+        System.out.printf("Populating elements took %.2f secs\n", (time3-time2)/1000f);
+        System.out.printf("Asserting results took %.2f secs\n", (time4-time3)/1000f);
+        System.out.printf("Total test execution took %.2f secs\n", (time4-time1)/1000f);
 
         WebDriverWait wait = new WebDriverWait(driver, 30);
         try

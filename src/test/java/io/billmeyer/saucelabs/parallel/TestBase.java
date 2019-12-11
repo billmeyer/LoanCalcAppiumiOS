@@ -3,6 +3,7 @@ package io.billmeyer.saucelabs.parallel;
 
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.ios.IOSDriver;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -48,14 +49,14 @@ public class TestBase
     protected static final boolean realDeviceTesting = true;
     protected static final boolean unifiedPlatformTesting = true;
 
-    protected static final String testobjectApiKey = System.getenv("TO_LOANCALC_APP");
+    protected static final String testobjectApiKey = System.getenv("LOANCALC_IOS_APIKEY");
     protected static final String userName = System.getenv("SAUCE_USERNAME");
     protected static final String accessKey = System.getenv("SAUCE_ACCESS_KEY");
 
     /**
      * ThreadLocal variable which contains the  {@link WebDriver} instance which is used to perform browser interactions with.
      */
-    private ThreadLocal<AndroidDriver> androidDriverThreadLocal = new ThreadLocal<>();
+    private ThreadLocal<IOSDriver> driverThreadLocal = new ThreadLocal<>();
 
     /**
      * DataProvider that explicitly sets the browser combinations to be used.
@@ -76,22 +77,18 @@ public class TestBase
         {
             if (unifiedPlatformTesting == true)
                 return new Object[][] {
-                        new Object[]{"Android", "Samsung_Galaxy_S6_POC116", "7"}
+                        new Object[]{"iOS", "iPhone_XS_POC166", "12.1.4"}
                 };
             else
                 return new Object[][]{
-//                    new Object[]{"Android", "LG G6", "7"},
-                    new Object[]{"Android", "Samsung Galaxy S6", "7"}
-//                    new Object[]{"Android", "Google Pixel 2 XL", "10"}
+                    new Object[]{"iOS", "iPhone.*", "13.1.2"}
                 };
         }
         else
         {
             return new Object[][]{
-                    new Object[]{"Android", "Android GoogleAPI Emulator", "9.0"},
-//                    new Object[]{"Android", "Android GoogleAPI Emulator", "7"},
-//                    new Object[]{"Android", "Android GoogleAPI Emulator", "6"}
-                    new Object[]{"Android", "Google Pixel 3 XL GoogleAPI Emulator", "9.0"}
+                    new Object[]{"iOS", "iPhone XS Simulator", "13.0"},
+                    new Object[]{"iOS", "iPad Pro (12.9 inch) Simulator", "13.0"}
             };
         }
         // @formatter:on
@@ -105,7 +102,7 @@ public class TestBase
          * @see https://wiki.saucelabs.com/display/DOCS/Annotating+Tests+with+Selenium%27s+JavaScript+Executor
          */
 
-        androidDriverThreadLocal.get().executeScript("sauce:context=" + text);
+        driverThreadLocal.get().executeScript("sauce:context=" + text);
     }
 
     /**
@@ -120,7 +117,7 @@ public class TestBase
      * @return
      * @throws MalformedURLException if an error occurs parsing the url
      */
-    protected AndroidDriver createDriver(String platformName, String platformVersion, String deviceName, String methodName)
+    protected IOSDriver createDriver(String platformName, String platformVersion, String deviceName, String methodName)
     throws MalformedURLException
     {
         URL url = null;
@@ -138,9 +135,16 @@ public class TestBase
         else
         {
             url = new URL("https://" + userName + ":" + accessKey + "@ondemand.us-west-1.saucelabs.com/wd/hub");
-//            caps.setCapability("app", "sauce-storage:LoanCalc.apk");
-            caps.setCapability("app", "sauce-storage:app-release.apk");
-            caps.setCapability("automationName", "uiautomator2");
+            if (realDeviceTesting == true)
+            {
+                caps.setCapability("app", "sauce-storage:LoanCalc.ipa");
+            }
+            else
+            {
+                caps.setCapability("app", "sauce-storage:LoanCalc.app.zip");
+            }
+
+            caps.setCapability("automationName", "XCUITest");
         }
 
 //        caps.setCapability("appiumVersion", "1.14.0");
@@ -153,13 +157,13 @@ public class TestBase
         // Launch the remote platformName and set it as the current thread
 
         long start = System.currentTimeMillis();
-        AndroidDriver driver = new AndroidDriver(url, caps);
+        IOSDriver driver = new IOSDriver(url, caps);
         long stop = System.currentTimeMillis();
-        info(driver, "Device allocation took %d secs\n", (stop - start) / 1000);
+        info(driver, "Device allocation took %.2f secs\n", (stop - start) / 1000f);
 
-        androidDriverThreadLocal.set(driver);
+        driverThreadLocal.set(driver);
 
-        return androidDriverThreadLocal.get();
+        return driverThreadLocal.get();
     }
 
     /**
@@ -170,7 +174,7 @@ public class TestBase
     public void tearDown(ITestResult result)
     throws Exception
     {
-        AppiumDriver driver = androidDriverThreadLocal.get();
+        AppiumDriver driver = driverThreadLocal.get();
 
         if (driver != null)
         {
@@ -233,7 +237,7 @@ public class TestBase
 
     public static void reportSauceLabsMobileResult(RemoteWebDriver driver, boolean status)
     {
-        ((JavascriptExecutor)driver).executeScript("sauce:job-result=" + (status ? "passed" : "false"));
+        ((JavascriptExecutor) driver).executeScript("sauce:job-result=" + (status ? "passed" : "false"));
     }
 
     /**

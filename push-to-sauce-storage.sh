@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILE='./app-release.apk'
+FILE='./LoanCalc.ipa'
 BASENAME=`basename ${FILE}`
 echo "Pushing ${FILE} to sauce-storage:${BASENAME}"
 
