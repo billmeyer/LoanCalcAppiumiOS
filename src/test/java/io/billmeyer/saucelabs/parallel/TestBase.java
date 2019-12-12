@@ -19,6 +19,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -38,6 +39,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.Date;
 
 /**
  * Simple TestNG test which demonstrates being instantiated via a DataProvider in order to supply multiple browser combinations.
@@ -131,6 +133,7 @@ public class TestBase
             caps.setCapability("testobject_api_key", testobjectApiKey);
             caps.setCapability("recordDeviceVitals", true);
         }
+
         // For emulator/simulator testing, connect to a different URL using a different certain set of credentials...
         else
         {
@@ -147,12 +150,15 @@ public class TestBase
             caps.setCapability("automationName", "XCUITest");
         }
 
-//        caps.setCapability("appiumVersion", "1.14.0");
         caps.setCapability("platformName", platformName);
         caps.setCapability("platformVersion", platformVersion);
         caps.setCapability("deviceName", deviceName);
-//        caps.setCapability("name", String.format("%s - %s %s [%s]", methodName, platformName, platformVersion, new Date()));
         caps.setCapability("name", methodName);
+
+        if (unifiedPlatformTesting == true)
+        {
+            addBuildInfo(caps);
+        }
 
         // Launch the remote platformName and set it as the current thread
 
@@ -193,6 +199,32 @@ public class TestBase
             }
             driver.quit();
         }
+    }
+
+    private MutableCapabilities addBuildInfo(MutableCapabilities sauceOpts)
+    {
+        // Pull the Job Name and Build Number from Jenkins if available...
+        String jenkinsBuildNumber = System.getenv("JENKINS_BUILD_NUMBER");
+        if (jenkinsBuildNumber != null)
+        {
+            sauceOpts.setCapability("build", jenkinsBuildNumber);
+        }
+        else
+        {
+            String jobName = System.getenv("JOB_NAME");
+            String buildNumber = System.getenv("BUILD_NUMBER");
+
+            if (jobName != null && buildNumber != null)
+            {
+                sauceOpts.setCapability("build", String.format("%s__%s", jobName, buildNumber));
+            }
+            else
+            {
+                sauceOpts.setCapability("build", "Build " + new Date());
+            }
+        }
+
+        return sauceOpts;
     }
 
     public static void pushToSauceStorage(String localFileName, String remoteFileName)
