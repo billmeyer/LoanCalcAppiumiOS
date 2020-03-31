@@ -49,7 +49,7 @@ import java.util.Date;
 public class TestBase
 {
     protected static final boolean realDeviceTesting = true;
-    protected static final boolean unifiedPlatformTesting = true;
+    protected static final boolean unifiedPlatformTesting = false;
 
     protected static final String testobjectApiKey = System.getenv("LOANCALC_IOS_APIKEY");
     protected static final String userName = System.getenv("SAUCE_USERNAME");

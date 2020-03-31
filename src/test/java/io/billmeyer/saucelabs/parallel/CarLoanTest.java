@@ -27,9 +27,6 @@ public class CarLoanTest extends TestBase
     public void calculateCarLoan(String platformName, String deviceName, String platformVersion, Method method)
     throws MalformedURLException
     {
-
-//        pushToSauceStorage("", "");
-
         IOSDriver driver = createDriver(platformName, platformVersion, deviceName, method.getName());
 
         long time1, time2, time3, time4;
@@ -68,10 +65,10 @@ public class CarLoanTest extends TestBase
 
         // Check if within given time the correct result appears in the designated field.
         ExpectedCondition<Boolean> expected;
-        expected = ExpectedConditions.textToBePresentInElement(lblMonthlyPayment, "$339.52");
-        expected = ExpectedConditions.textToBePresentInElement(lblTotalPayments, "$20,370.97");
-        expected = ExpectedConditions.textToBePresentInElement(lblTotalInterest, "$1,670.97");
-        expected = ExpectedConditions.textToBePresentInElement(lblTotalCost, "$28,370.97");
+        expected = ExpectedConditions.textToBePresentInElement(lblMonthlyPayment, "339.52");
+        expected = ExpectedConditions.textToBePresentInElement(lblTotalPayments, "20,370.97");
+        expected = ExpectedConditions.textToBePresentInElement(lblTotalInterest, "1,670.97");
+        expected = ExpectedConditions.textToBePresentInElement(lblTotalCost, "28,370.97");
 
         time4 = System.currentTimeMillis();
 
